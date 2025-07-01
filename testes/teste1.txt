@@ -1,0 +1,18 @@
+1 2
+t1 = a < b
+if t1 goto 2 else goto 3
+2 3
+
+2 2
+c = a + b
+goto 4
+4
+
+3 2
+c = a - b
+goto 4
+4
+
+4 1
+print c
+0
