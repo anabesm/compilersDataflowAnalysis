@@ -3,6 +3,7 @@ import io
 from cfg import Block
 from cfg import CFG
 import re
+from livenessAnalysis import livenessAnalysis
 def read_source():
     if len(sys.argv) > 1:
         path = sys.argv[1]
@@ -16,6 +17,7 @@ def main():
     cfg = CFG([], [])
     lines = code.split("\n")
     header = re.compile(r"^\d+\s+\d+$")
+    succ_allocator = {}
 
     i = 0
     while i < len(lines):
@@ -27,6 +29,7 @@ def main():
             n = str(data[0]) # nome do bloco
             m = int(data[1]) # quantidade de instrucoes
             block = Block(n, [], [])
+            succ_allocator[n] = set()
 
             # adiciona as instrucoes
             for j in range (m):
@@ -36,21 +39,47 @@ def main():
             i += 1
 
             block_edges = lines[i].split(" ")
-            # adiciona as arestas 
+            # adiciona as arestas e sucessores 
             for edge in block_edges:
+                new_block = Block (edge.strip(), [], [])
                 if edge != '0':
-                    block.add_successor(edge.strip())
+                    succ_allocator[n].add(new_block.name)
+                    # block.succ_names.append(edge.strip())
                     cfg.add_edge((block.name, edge.strip()))
 
             cfg.add_node(block)
 
         i += 1
 
+
     for block in cfg.nodes:
         block.def_use_variables()
-        print(f"{block.name} defined: {block.defined}, use: {block.use}")
 
-    print(cfg.__str__())
+    
+    # criando pares {block.name: block (object)} para alocar os sucessores
+    name_to_block = {block.name: block for block in cfg.nodes}
+
+    # alocando os blocos reais correspondentes aos sucessores
+    for block in cfg.nodes:
+        block.successors = [name_to_block[name] for name in succ_allocator[block.name]]
+
+    cfg.find_IN_OUT()
+
+    # print(cfg.__str__())
+    for block in cfg.nodes:
+        print(f"defined: {block.defined}")
+        print(f"use: {block.use}")
+        print(f"IN[{block.name}]: {block.IN}")
+        print(f"OUT[{block.name}]: {block.OUT}")
+
+    liveness = livenessAnalysis(cfg)
+
+    for var in liveness:
+        blocks = liveness[var]
+        if len(blocks) == 0:
+            print(f"\t{var}: - , total: {len(liveness[var])}")
+        else:
+            print(f"\t{var}: {blocks}, total: {len(liveness[var])}")
 
 if __name__ == "__main__":
     main()

@@ -6,10 +6,10 @@ class Block:
         self.name = name
         self.instructions = instructions
         self.successors = successors
-        self.IN = []
-        self.OUT = []
-        self.defined = []
-        self.use = []
+        self.IN = set()
+        self.OUT = set()
+        self.defined = set()
+        self.use = set()
 
     def add_instruction(self, instruction):
         self.instructions.append(instruction)
@@ -29,6 +29,8 @@ class Block:
             successors += f"\t{s}\n"
         return successors
     
+    # def : conjunto de variáveis atribuídas em B antes de qualquer uso daquela variável em B
+    # use: conjunto de variáveis usadas em B antes de qualquer atribuição à variável em B
     def def_use_variables (self):
 
         reserved = ["return", "if", "else", "while", "for", "goto"]
@@ -42,23 +44,25 @@ class Block:
                 right_parts = right.split(" ")
 
                 for part in right_parts:
-                    if variables_rule.match(part) and part not in self.use and part not in reserved and part not in self.defined:
-                        self.use.append(part)
+                    if variables_rule.match(part) and part not in reserved and part not in self.defined:
+                        self.use.add(part)
 
-                if left not in self.defined:
-                    self.defined.append(left)
+                if  left not in self.use:
+                    self.defined.add(left)
 
 
             else:
                 parts = i.split(" ")
 
                 for part in parts:
-                    if variables_rule.match(part) and part not in self.use and part not in reserved and part not in self.defined:
-                        self.use.append(part)
+                    if variables_rule.match(part) and part not in reserved and part not in self.defined:
+                        self.use.add(part)
+
+
             
     
     def __str__(self):
-        res = f"Block: {self.name}\n"
+        res = f"B{self.name}\n"
         for i in self.instructions:
             res += f"\t{i}\n"
         return res
@@ -74,11 +78,37 @@ class CFG:
 
     def add_edge(self, edge):
         self.edges.append(edge)
+
+    # IN: conjunto de variáveis vivas no início de B
+    # OUT: conjunto de variáveis vivas no fim de B
+    def find_IN_OUT(self):
+        change = True
+
+        while (change):
+            change = False
+            for block in reversed(self.nodes):
+                curr_IN = block.IN.copy()
+                curr_OUT = block.OUT.copy()
+
+                for succ in block.successors:
+                    block.OUT.update(succ.IN)
+
+                block.IN = (block.use).union((block.OUT).difference(block.defined))
+
+                if (curr_IN != block.IN or curr_OUT != block.OUT):
+                    change = True
+                
+                # print(f"B{block.name} old_in: {curr_IN} old_in: {curr_OUT}")
+                # print(f"B{block.name} new_in: {block.IN} new_out: {block.OUT}")
+                # print("----------")
+
     
     def __str__(self):
         res = "CFG:\n"
         for node in self.nodes:
-            res += f"{node.name}: {node.get_instructions()}\n"
+            res += f"{node.name}: {node.get_instructions()}\n Succ:"
+            for name in node.succ_names:
+                res += f"\t{node.name} -> {name}\n"
         res += "Edges:\n"
         for edge in self.edges:
             res += f"\t{edge[0]} -> {edge[1]}\n"
