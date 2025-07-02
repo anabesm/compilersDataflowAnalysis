@@ -65,19 +65,15 @@ def main():
 
     cfg.find_IN_OUT()
 
-    # print(cfg.__str__())
-    for block in cfg.nodes:
-        print(f"defined: {block.defined}")
-        print(f"use: {block.use}")
-        print(f"IN[{block.name}]: {block.IN}")
-        print(f"OUT[{block.name}]: {block.OUT}")
+    print(cfg.__str__())
 
     liveness = livenessAnalysis(cfg)
 
+    print ("LIVENESS ANALYSIS")
     for var in liveness:
         blocks = liveness[var]
         if len(blocks) == 0:
-            print(f"\t{var}: - , total: {len(liveness[var])}")
+            print(f"\t{var}: {{ }} , total: {len(liveness[var])}")
         else:
             print(f"\t{var}: {blocks}, total: {len(liveness[var])}")
 

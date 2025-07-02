@@ -3,14 +3,12 @@ t1 = a < b
 if t1 goto 2 else goto 3
 2 3
 
-2 2
+2 1
 c = a + b
-goto 4
 4
 
-3 2
+3 1
 c = a - b
-goto 4
 4
 
 4 1

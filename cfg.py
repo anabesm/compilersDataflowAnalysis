@@ -24,16 +24,17 @@ class Block:
         return instructions
 
     def get_successors(self):
-        successors = ""
+        successors = "[ "
         for s in self.successors:
-            successors += f"\t{s}\n"
+            successors += f"{s.name} "
+        successors += "]"
         return successors
     
     # def : conjunto de variáveis atribuídas em B antes de qualquer uso daquela variável em B
     # use: conjunto de variáveis usadas em B antes de qualquer atribuição à variável em B
     def def_use_variables (self):
 
-        reserved = ["return", "if", "else", "while", "for", "goto"]
+        reserved = ["return", "if", "else", "goto", "print"]
         variables_rule = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")
 
         for i in self.instructions:
@@ -104,13 +105,12 @@ class CFG:
 
     
     def __str__(self):
-        res = "CFG:\n"
+        cfg_str = ""
+
         for node in self.nodes:
-            res += f"{node.name}: {node.get_instructions()}\n Succ:"
-            for name in node.succ_names:
-                res += f"\t{node.name} -> {name}\n"
-        res += "Edges:\n"
+            cfg_str += f"B{node.name}: {node.get_instructions()}\n Succ: {node.get_successors()}\n def: {node.defined}\n use: {node.use}\n IN: {node.IN}\n OUT: {node.OUT}\n\n"
+        cfg_str += "Edges:\n"
         for edge in self.edges:
-            res += f"\t{edge[0]} -> {edge[1]}\n"
-        return res
-    
+            cfg_str += f"\t{edge[0]} -> {edge[1]}\n"
+            
+        return cfg_str
