@@ -4,6 +4,8 @@ from cfg import Block
 from cfg import CFG
 import re
 from livenessAnalysis import livenessAnalysis
+from avaliableExpression import available_expressions
+
 def read_source():
     if len(sys.argv) > 1:
         path = sys.argv[1]
@@ -76,6 +78,8 @@ def main():
             print(f"\t{var}: {{ }} , total: {len(liveness[var])}")
         else:
             print(f"\t{var}: {blocks}, total: {len(liveness[var])}")
+
+    available_expressions(cfg)
 
 if __name__ == "__main__":
     main()
