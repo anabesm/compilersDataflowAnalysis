@@ -5,6 +5,7 @@ from cfg import CFG
 import re
 from livenessAnalysis import livenessAnalysis
 from avaliableExpression import available_expressions
+from reachingDefinitions import reaching_definitions
 
 def read_source():
     if len(sys.argv) > 1:
@@ -64,6 +65,8 @@ def main():
 
     liveness = livenessAnalysis(cfg)
 
+    reach_defs = reaching_definitions(cfg)
+
     print("\nLIVENESS ANALYSIS")
     for block in liveness.keys():
         print(f"B{block}:")
@@ -76,6 +79,14 @@ def main():
             print(f"\tOUT: {liveness[block]['OUT']}")
         else:
             print(f"\tOUT: {{}}")
+
+    print("\nREACHING DEFINITIONS ANALYSIS")
+    for name in sorted(reach_defs, key=int):
+        ins  = {f"Bloco {blk} - linha {idx}" for blk, idx in reach_defs[name]["IN"]}
+        outs = {f"Bloco {blk} - linha {idx}" for blk, idx in reach_defs[name]["OUT"]}
+        print(f"B{name}:")
+        print(f"\tIN : {ins or set()}")
+        print(f"\tOUT: {outs or set()}")
 
     available_expressions(cfg)
 
