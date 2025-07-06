@@ -53,11 +53,6 @@ def main():
 
         i += 1
 
-
-    for block in cfg.nodes:
-        block.def_use_variables()
-
-    
     # criando pares {block.name: block (object)} para alocar os sucessores
     name_to_block = {block.name: block for block in cfg.nodes}
 
@@ -65,19 +60,22 @@ def main():
     for block in cfg.nodes:
         block.successors = [name_to_block[name] for name in succ_allocator[block.name]]
 
-    cfg.find_IN_OUT()
-
-    print(cfg.__str__())
+    # print(cfg.__str__())
 
     liveness = livenessAnalysis(cfg)
 
-    print ("LIVENESS ANALYSIS")
-    for var in liveness:
-        blocks = liveness[var]
-        if len(blocks) == 0:
-            print(f"\t{var}: {{ }} , total: {len(liveness[var])}")
+    print("\nLIVENESS ANALYSIS")
+    for block in liveness.keys():
+        print(f"B{block}:")
+        if len(liveness[block]["IN"]) != 0:
+            print(f"\tIN: {liveness[block]['IN']}")
         else:
-            print(f"\t{var}: {blocks}, total: {len(liveness[var])}")
+            print(f"\tIN: {{}}")
+            
+        if len(liveness[block]["OUT"]) != 0:
+            print(f"\tOUT: {liveness[block]['OUT']}")
+        else:
+            print(f"\tOUT: {{}}")
 
     available_expressions(cfg)
 
