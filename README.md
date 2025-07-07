@@ -18,7 +18,7 @@ Localização das questões:
         - IN[B] = USE[B] ∪ (OUT[B] - DEF[B])
         - OUT[B] = ⋃ IN[S] para todos os sucessores S de B
 
-2. Reaching Definitions (a implementar): identifica quais definições de variáveis podem atingir um determinado ponto do programa sem serem sobrescritas.
+2. Reaching Definitions (reachingDefinitions.py): identifica quais definições de variáveis podem atingir um determinado ponto do programa sem serem sobrescritas.
     - Tipo de análise: forward (direta)
     - Equações:
         - GEN[B]: definições geradas em B
